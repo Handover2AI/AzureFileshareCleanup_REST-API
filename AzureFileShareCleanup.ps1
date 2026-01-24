@@ -1,14 +1,39 @@
-# -------------------------
-# Parameters - edit these
-# -------------------------
-$storageAccount = "stavdops8dsc"
-$fileShare      = "fslogix"
+<#
+.SYNOPSIS
+    Daily maintenance script for Azure File Share.
+
+.DESCRIPTION
+    - Connects with Automation Account managed identity, assuming the script is used as PS runbook in Azure Automation account.
+    - Uses Azure Storage REST API for direct HTTP requests.
+    - Lightweight and dependency-free (no Az PowerShell modules required).
+    - Ideal for automation jobs, restricted environments, or custom integrations.
+    - Deletes files older than N hours
+
+.PARAMETER storageAccount
+    Name of the storage account.
+
+.PARAMETER fileShare
+    Name of the file share.
+
+.PARAMETER cutoffHours
+    Number of hours. Files that have not been modified in last $cutoffHours will be deleted.
+
+.PARAMETER useManagedIdentity
+    Accepted values are $true or $false. If $false, then the script uses logged-in user's identity.
+
+.NOTES
+    Author: Handover2AI-byExistence
+    Date:   2026-01-09
+    Doesn't Require: Az PowerShell modules required
+#>
+
+# Parameters
+$storageAccount = "<NAME OF THE STORAGE ACCOUNT>"
+$fileShare      = "<NAME OF THE FILE SHARE>"
 $cutoffHours    = 24
 $useManagedIdentity = $true 
 
-# -------------------------
 # Acquire token
-# -------------------------
 Clear-AzContext -Scope Process
 if ($useManagedIdentity) { Connect-AzAccount -Identity -ErrorAction Stop } else { Connect-AzAccount -ErrorAction Stop }
 $tokenResource = "https://$storageAccount.file.core.windows.net/"
@@ -18,9 +43,7 @@ $bearer = if ($tok.Token -is [System.Security.SecureString]) {
 } else { $tok.Token }
 $bearer = $bearer.Trim() -replace '[\uFEFF\u200B]', ''
 
-# -------------------------
-# Helpers
-# -------------------------
+# Helper Functions
 function Escape-PathSegments {
     param([string]$p)
     if ([string]::IsNullOrEmpty($p)) { return "" }
@@ -73,7 +96,6 @@ function Remove-AzureFile {
         Invoke-RestMethod -Method Delete -Uri $url -Headers $h -ErrorAction Stop
         Write-Output "DELETED: $filePath"
     } catch {
-        # Fixed: Using curly braces to prevent the colon from breaking the variable reference
         Write-Error "Failed to delete ${filePath}. Error: $($_.Exception.Message)"
     }
 }
@@ -99,9 +121,7 @@ function Head-FileGetTimestampsUtc {
     } catch { return @{ ParsedUtc = $null } }
 }
 
-# -------------------------
 # Main Logic
-# -------------------------
 $cutoffUtc = (Get-Date).ToUniversalTime().AddHours(-1 * [int]$cutoffHours)
 Write-Output "Cutoff UTC: $($cutoffUtc.ToString('u'))"
 
