@@ -1,6 +1,6 @@
 # Azure FileShare Cleanup using REST API
 
-![PSScriptAnalyzer](https://github.com/Handover2AI/AzureFileshareCleanup_AccessKey/actions/workflows/ci-workflow-psscriptanalyzer.yml/badge.svg)
+![PSScriptAnalyzer](https://github.com/Handover2AI/AzureFileshareCleanup_REST-API/actions/workflows/ci-workflow-psscriptanalyzer.yml/badge.svg)
 
 ## 📌 Overview
 This repository provides a PowerShell script to **delete files and directories from an Azure FileShare using the Azure Storage REST API**. Unlike [access key–based approache](https://github.com/Handover2AI/AzureFileshareCleanup_AccessKey), this method leverages direct REST calls for fine-grained control and can be integrated into automation pipelines or restricted environments where SDKs/CLI tools are not available.
