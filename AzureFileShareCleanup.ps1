@@ -24,7 +24,7 @@
 .NOTES
     Author: Handover2AI-byExistence
     Date:   2026-01-09
-    Doesn't Require: Az PowerShell modules required
+    Doesn't require: Az PowerShell modules required
 #>
 
 # Parameters
